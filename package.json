@@ -1,0 +1,21 @@
+{
+  "name": "foxbitsdk",
+  "version": "0.0.1",
+  "description": "Sdk for foxbit exchange",
+  "main": "src/app.js",
+  "author": "Walderlan Sena <senawalderlan@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "crypto-js": "^4.0.0",
+    "dotenv": "^8.2.0",
+    "events": "^3.2.0",
+    "ws": "^7.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7",
+    "sucrase": "^3.17.0"
+  }
+}
