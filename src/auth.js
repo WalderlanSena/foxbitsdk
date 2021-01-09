@@ -7,26 +7,25 @@ const wsAddress = process.env.FOXBIT_API;
 const ws = new WebSocket(wsAddress);
 
 let messageFrame = {
-    "m": 0,          //MessageType ( 0_Request / 1_Reply / 2_Subscribe / 3_Event / 4_Unsubscribe / Error )
-    "i": 0,          //Sequence Number
-    "n": "",         //Endpoint
-    "o": ""          //Payload
+    "m": 0,
+    "i": 0,
+    "n": "",
+    "o": ""
 };
 
 const auth = () => {
     ws.on('open', function open() {
-
         consoleMessage('------------------------------------------------------------------------','startup');
         consoleMessage('Got connection','open.event');
     
         authenticateUser(messageFrame);
     
         consoleMessage('End connection','open.event');
-    
     });
     
-    ws.on('message', function incoming(data) {    
-        test(messageFrame);
+    ws.on('message', function incoming(data) {
+        consoleMessage('Message => ', data);
+        GetAccountTrades(messageFrame);
     });
 
     ws.on('close', function() {
@@ -34,13 +33,14 @@ const auth = () => {
     });    
 };
 
-const test = frame => {
-    console.log("FOI");
+const GetL2Snapshot = (frame) => {
     const payload = {
-        "UserId": parseInt(process.env.USER_ID)
+        "OMSId": 1,
+        "InstrumentId": 1,
+        "Depth": 100
     };
 
-    frame.n = "GetAvailablePermissionList";
+    frame.n = "GetProduct";
     frame.o = JSON.stringify(payload);
 
     ws.send(JSON.stringify(frame), function ack(error) {
@@ -48,14 +48,24 @@ const test = frame => {
             consoleMessage('Error', JSON.stringify(error));
         }
     });
+};
 
-    ws.on('message', function incoming(data) {  
-        console.log(data);
+const GetAccountTrades = (frame) => {
+    const payload = {
+        "AccountId": parseInt(process.env.USER_ID),
+        "OMSId": 1,
+        "StartIndex":0,
+        "Count":2
+    };
+
+    frame.n = "GetAccountTrades";
+    frame.o = JSON.stringify(payload);
+
+    ws.send(JSON.stringify(frame), function ack(error) {
+        if (error != undefined){
+            consoleMessage('Error', JSON.stringify(error));
+        }
     });
-
-    ws.on('close', function() {
-        consoleMessage('WebService','close! ');
-    }); 
 };
 
 const authenticateUser = frame => {
@@ -75,9 +85,9 @@ const authenticateUser = frame => {
     frame.n = "AuthenticateUser";
     frame.o = JSON.stringify(payload);
 
-    consoleMessage(frame.n, JSON.stringify(frame));
+    const messageFrame = JSON.stringify(frame);
 
-    ws.send(JSON.stringify(frame), function ack(error) {
+    ws.send(messageFrame, function ack(error) {
 
         if (error != undefined) {
             consoleMessage('Error', JSON.stringify(error));
